@@ -1,24 +1,24 @@
-Review the following file change from a pull request.
+以下のプルリクエストのファイル変更をレビューしてください。
 
-## PR Context
-- **Title:** {pr_title}
-- **Description:** {pr_body}
+## PR 情報
+- **タイトル:** {pr_title}
+- **説明:** {pr_body}
 
-## File: {filename}
+## ファイル: {filename}
 
-### Diff (unified format)
+### 差分（unified 形式）
 ```
 {patch}
 ```
 
-### Full File Content (for context)
+### ファイル全文（コンテキスト用）
 ```
 {file_content}
 ```
 
-## Review Instructions
-- Categories to check: {categories}
-- Maximum findings for this file: {max_findings}
-- Focus on the changes shown in the diff
-- Consider the full file content for context only
-- Return your findings as JSON following the system prompt schema
+## レビュー指示
+- チェックするカテゴリ: {categories}
+- このファイルの最大 findings 数: {max_findings}
+- 差分に示された変更に集中してください
+- ファイル全文はコンテキストとしてのみ参照してください
+- システムプロンプトの JSON スキーマに従って findings を返してください

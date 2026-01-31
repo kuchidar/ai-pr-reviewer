@@ -9,7 +9,7 @@ from pr_reviewer.models import ReviewResult, TestResult
 class TestBuildApproveComment:
     def test_contains_no_issues(self):
         comment = _build_approve_comment()
-        assert "No Issues Found" in comment
+        assert "問題なし" in comment
 
 
 class TestBuildFindingsComment:
@@ -17,12 +17,12 @@ class TestBuildFindingsComment:
         result = ReviewResult(findings=sample_findings)
         comment = _build_findings_comment(result)
         assert "2" in comment
-        assert "issue(s)" in comment
+        assert "件の問題" in comment
 
     def test_contains_findings_table(self, sample_findings):
         result = ReviewResult(findings=sample_findings)
         comment = _build_findings_comment(result)
-        assert "| Severity |" in comment
+        assert "| 重大度 |" in comment
         assert "src/auth.py" in comment
 
     def test_contains_issue_urls(self, sample_findings):
@@ -31,7 +31,7 @@ class TestBuildFindingsComment:
             issue_urls=["https://github.com/o/r/issues/1", "https://github.com/o/r/issues/2"],
         )
         comment = _build_findings_comment(result)
-        assert "Created Issues" in comment
+        assert "作成された Issue" in comment
         assert "issues/1" in comment
 
     def test_contains_fix_pr_url(self, sample_findings):
@@ -40,7 +40,7 @@ class TestBuildFindingsComment:
             fix_pr_url="https://github.com/o/r/pull/99",
         )
         comment = _build_findings_comment(result)
-        assert "Fix PR" in comment
+        assert "修正 PR" in comment
         assert "pull/99" in comment
 
     def test_contains_test_results(self, sample_findings):
@@ -52,7 +52,7 @@ class TestBuildFindingsComment:
             ],
         )
         comment = _build_findings_comment(result)
-        assert "CI Check Results" in comment
+        assert "CI チェック結果" in comment
         assert "CI" in comment
 
 
@@ -63,7 +63,7 @@ class TestPostReviewComment:
         post_review_comment(42, result, gh)
         gh.post_comment.assert_called_once()
         body = gh.post_comment.call_args[0][1]
-        assert "No Issues Found" in body
+        assert "問題なし" in body
 
     def test_posts_findings_when_issues(self, sample_findings):
         gh = MagicMock()
@@ -71,4 +71,4 @@ class TestPostReviewComment:
         post_review_comment(42, result, gh)
         gh.post_comment.assert_called_once()
         body = gh.post_comment.call_args[0][1]
-        assert "Summary" in body
+        assert "レビュー結果" in body

@@ -30,34 +30,35 @@ def post_review_comment(
 
 def _build_approve_comment() -> str:
     return (
-        "## AI Review: No Issues Found\n\n"
-        "The AI reviewer did not find any issues in this PR. Looking good!\n\n"
+        "## AI レビュー: 問題なし\n\n"
+        "AI レビューの結果、この PR に問題は見つかりませんでした。\n\n"
         "---\n"
-        "*Reviewed by AI PR Reviewer*"
+        "*AI PR Reviewer によるレビュー*"
     )
 
 
 def _build_findings_comment(result: ReviewResult) -> str:
     lines = [
-        "## AI Review Summary",
+        "## AI レビュー結果",
         "",
-        f"Found **{len(result.findings)}** issue(s) "
-        f"({result.critical_count} critical).",
+        f"**{len(result.findings)}** 件の問題が見つかりました"
+        f"（うち重大: {result.critical_count} 件）。",
         "",
     ]
 
     # Findings table
     lines.extend([
-        "### Findings",
+        "### 検出された問題",
         "",
-        "| Severity | Category | File | Title |",
-        "|----------|----------|------|-------|",
+        "| 重大度 | カテゴリ | ファイル | 概要 |",
+        "|--------|----------|----------|------|",
     ])
 
     for f in result.findings:
         severity_badge = _severity_badge(f.severity.value)
+        category_jp = _category_jp(f.category.value)
         lines.append(
-            f"| {severity_badge} | {f.category.value} | `{f.file}` | {f.title} |"
+            f"| {severity_badge} | {category_jp} | `{f.file}` | {f.title} |"
         )
 
     lines.append("")
@@ -65,7 +66,7 @@ def _build_findings_comment(result: ReviewResult) -> str:
     # Issue links
     if result.issue_urls:
         lines.extend([
-            "### Created Issues",
+            "### 作成された Issue",
             "",
         ])
         for i, url in enumerate(result.issue_urls, 1):
@@ -75,16 +76,16 @@ def _build_findings_comment(result: ReviewResult) -> str:
     # Fix PR link
     if result.fix_pr_url:
         lines.extend([
-            "### Fix PR",
+            "### 修正 PR",
             "",
-            f"A fix PR has been created: {result.fix_pr_url}",
+            f"修正 PR が作成されました: {result.fix_pr_url}",
             "",
         ])
 
     # Test results
     if result.test_results:
         lines.extend([
-            "### CI Check Results (Fix PR)",
+            "### CI チェック結果（修正 PR）",
             "",
         ])
         for tr in result.test_results:
@@ -95,7 +96,7 @@ def _build_findings_comment(result: ReviewResult) -> str:
 
     lines.extend([
         "---",
-        "*Reviewed by AI PR Reviewer*",
+        "*AI PR Reviewer によるレビュー*",
     ])
 
     return "\n".join(lines)
@@ -103,12 +104,23 @@ def _build_findings_comment(result: ReviewResult) -> str:
 
 def _severity_badge(severity: str) -> str:
     badges = {
-        "critical": "🔴 critical",
-        "high": "🟠 high",
-        "medium": "🟡 medium",
-        "low": "🔵 low",
+        "critical": "🔴 重大",
+        "high": "🟠 高",
+        "medium": "🟡 中",
+        "low": "🔵 低",
     }
     return badges.get(severity, severity)
+
+
+def _category_jp(category: str) -> str:
+    mapping = {
+        "security": "セキュリティ",
+        "performance": "パフォーマンス",
+        "maintainability": "保守性",
+        "correctness": "正確性",
+        "style": "スタイル",
+    }
+    return mapping.get(category, category)
 
 
 def _check_icon(status: str) -> str:

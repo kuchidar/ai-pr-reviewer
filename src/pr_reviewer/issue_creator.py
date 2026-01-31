@@ -45,32 +45,46 @@ def create_issues(
 
 
 def _build_issue_title(finding: ReviewFinding, pr_info: PRInfo) -> str:
-    severity_emoji = {
-        "critical": "[CRITICAL]",
-        "high": "[HIGH]",
-        "medium": "[MEDIUM]",
-        "low": "[LOW]",
+    severity_label = {
+        "critical": "[重大]",
+        "high": "[高]",
+        "medium": "[中]",
+        "low": "[低]",
     }
-    prefix = severity_emoji.get(finding.severity.value, "")
+    prefix = severity_label.get(finding.severity.value, "")
     return f"{prefix} {finding.title} (PR #{pr_info.number})"
 
 
 def _build_issue_body(finding: ReviewFinding, pr_info: PRInfo) -> str:
     lines = [
-        f"## AI Review Finding",
+        f"## AI レビュー指摘",
         f"",
-        f"**Source PR:** #{pr_info.number} ({pr_info.title})",
-        f"**File:** `{finding.file}`",
+        f"**対象 PR:** #{pr_info.number} ({pr_info.title})",
+        f"**ファイル:** `{finding.file}`",
     ]
 
     if finding.line:
-        lines.append(f"**Line:** {finding.line}")
+        lines.append(f"**行番号:** {finding.line}")
+
+    severity_jp = {
+        "critical": "重大（マージ前に必ず修正）",
+        "high": "高（修正すべき）",
+        "medium": "中（修正を検討）",
+        "low": "低（できれば対応）",
+    }
+    category_jp = {
+        "security": "セキュリティ",
+        "performance": "パフォーマンス",
+        "maintainability": "保守性",
+        "correctness": "正確性",
+        "style": "スタイル",
+    }
 
     lines.extend([
-        f"**Severity:** {finding.severity.value}",
-        f"**Category:** {finding.category.value}",
+        f"**重大度:** {severity_jp.get(finding.severity.value, finding.severity.value)}",
+        f"**カテゴリ:** {category_jp.get(finding.category.value, finding.category.value)}",
         f"",
-        f"## Description",
+        f"## 説明",
         f"",
         finding.description,
     ])
@@ -78,7 +92,7 @@ def _build_issue_body(finding: ReviewFinding, pr_info: PRInfo) -> str:
     if finding.suggested_fix:
         lines.extend([
             f"",
-            f"## Suggested Fix",
+            f"## 修正案",
             f"",
             f"```",
             finding.suggested_fix,
@@ -88,7 +102,7 @@ def _build_issue_body(finding: ReviewFinding, pr_info: PRInfo) -> str:
     lines.extend([
         f"",
         f"---",
-        f"*This issue was automatically created by AI PR Reviewer.*",
+        f"*この Issue は AI PR Reviewer によって自動作成されました。*",
     ])
 
     return "\n".join(lines)

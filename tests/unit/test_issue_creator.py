@@ -11,7 +11,7 @@ class TestBuildIssueTitle:
         finding = sample_findings[0]
         finding.severity = Severity.CRITICAL
         title = _build_issue_title(finding, sample_pr_info)
-        assert "[CRITICAL]" in title
+        assert "[重大]" in title
         assert "PR #42" in title
 
     def test_includes_finding_title(self, sample_findings, sample_pr_info):
@@ -23,16 +23,16 @@ class TestBuildIssueBody:
     def test_contains_file_info(self, sample_findings, sample_pr_info):
         body = _build_issue_body(sample_findings[0], sample_pr_info)
         assert "src/auth.py" in body
-        assert "security" in body
+        assert "セキュリティ" in body
 
     def test_includes_suggested_fix(self, sample_findings, sample_pr_info):
         body = _build_issue_body(sample_findings[0], sample_pr_info)
-        assert "Suggested Fix" in body
+        assert "修正案" in body
         assert "RuntimeError" in body
 
     def test_no_fix_section_when_none(self, sample_findings, sample_pr_info):
         body = _build_issue_body(sample_findings[1], sample_pr_info)
-        assert "Suggested Fix" not in body
+        assert "修正案" not in body
 
 
 class TestCreateIssues:
