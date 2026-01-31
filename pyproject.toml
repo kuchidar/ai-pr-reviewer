@@ -27,6 +27,9 @@ pr-reviewer = "pr_reviewer.__main__:main"
 [tool.setuptools.packages.find]
 where = ["src"]
 
+[tool.setuptools.package-data]
+pr_reviewer = ["prompts/*.txt", "default_rules.yml"]
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 pythonpath = ["src"]

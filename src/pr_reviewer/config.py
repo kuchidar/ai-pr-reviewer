@@ -13,7 +13,7 @@ from pr_reviewer.models import ReviewConfig
 
 logger = logging.getLogger(__name__)
 
-_DEFAULT_RULES_PATH = Path(__file__).resolve().parent.parent.parent / "config" / "default_rules.yml"
+_DEFAULT_RULES_PATH = Path(__file__).resolve().parent / "default_rules.yml"
 _REPO_CONFIG_FILENAME = ".ai-reviewer.yml"
 
 _ENV_PREFIX = "AI_REVIEWER_"
