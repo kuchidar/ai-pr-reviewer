@@ -1,0 +1,22 @@
+{
+  "findings": [
+    {
+      "file": "src/db.py",
+      "line": 8,
+      "severity": "critical",
+      "category": "security",
+      "title": "SQL injection vulnerability",
+      "description": "User input is directly interpolated into a SQL query using f-string formatting. An attacker could inject arbitrary SQL by providing malicious input as user_id.",
+      "suggested_fix": "cursor.execute('SELECT * FROM users WHERE id = ?', (user_id,))"
+    },
+    {
+      "file": "src/db.py",
+      "line": 13,
+      "severity": "medium",
+      "category": "security",
+      "title": "Hardcoded file path",
+      "description": "Writing to /tmp/config.json uses a hardcoded path which could be a security risk (symlink attack) and is not portable.",
+      "suggested_fix": null
+    }
+  ]
+}

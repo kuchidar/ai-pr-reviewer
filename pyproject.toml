@@ -1,0 +1,36 @@
+[build-system]
+requires = ["setuptools>=64", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ai-pr-reviewer"
+version = "0.1.0"
+description = "AI-powered PR review agent using Claude API"
+requires-python = ">=3.9"
+dependencies = [
+    "anthropic>=0.39.0",
+    "PyGithub>=2.1.1",
+    "pydantic>=2.5.0",
+    "pyyaml>=6.0.1",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.4.0",
+    "pytest-asyncio>=0.23.0",
+    "ruff>=0.1.0",
+]
+
+[project.scripts]
+pr-reviewer = "pr_reviewer.__main__:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+
+[tool.ruff]
+target-version = "py39"
+line-length = 100

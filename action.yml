@@ -1,0 +1,41 @@
+name: "AI PR Reviewer"
+description: "Automated PR review using Claude API with issue creation and fix PR generation"
+author: "AI PR Reviewer"
+
+inputs:
+  github-token:
+    description: "GitHub token with repo permissions"
+    required: true
+  anthropic-api-key:
+    description: "Anthropic API key"
+    required: true
+  repository:
+    description: "Repository in owner/repo format (defaults to current repo)"
+    required: false
+    default: ${{ github.repository }}
+  pr-number:
+    description: "PR number to review (defaults to triggering PR)"
+    required: false
+    default: ${{ github.event.pull_request.number }}
+
+runs:
+  using: "composite"
+  steps:
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3.11"
+
+    - name: Install dependencies
+      shell: bash
+      run: pip install "${{ github.action_path }}"
+
+    - name: Run AI PR Review
+      shell: bash
+      env:
+        GITHUB_TOKEN: ${{ inputs.github-token }}
+        ANTHROPIC_API_KEY: ${{ inputs.anthropic-api-key }}
+      run: |
+        python -m pr_reviewer \
+          --repo "${{ inputs.repository }}" \
+          --pr "${{ inputs.pr-number }}"

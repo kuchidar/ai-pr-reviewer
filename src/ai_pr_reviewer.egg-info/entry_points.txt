@@ -1,0 +1,2 @@
+[console_scripts]
+pr-reviewer = pr_reviewer.__main__:main

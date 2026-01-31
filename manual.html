@@ -1,0 +1,1065 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI PR Reviewer - 使い方マニュアル</title>
+<style>
+  :root {
+    --primary: #6d5cff;
+    --primary-light: #ede9fe;
+    --primary-dark: #4f3ed4;
+    --bg: #f8f9fb;
+    --surface: #ffffff;
+    --text: #1e2a3a;
+    --text-muted: #5f6d7e;
+    --border: #e2e6ed;
+    --code-bg: #1e293b;
+    --code-text: #e2e8f0;
+    --accent-red: #ef4444;
+    --accent-orange: #f97316;
+    --accent-yellow: #eab308;
+    --accent-blue: #3b82f6;
+    --accent-green: #22c55e;
+    --radius: 12px;
+    --shadow: 0 1px 3px rgba(0,0,0,.06), 0 4px 12px rgba(0,0,0,.04);
+    --shadow-lg: 0 4px 16px rgba(0,0,0,.08), 0 12px 40px rgba(0,0,0,.06);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.8;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ===== Header ===== */
+  .header {
+    background: linear-gradient(135deg, #6d5cff 0%, #a78bfa 50%, #818cf8 100%);
+    color: #fff;
+    padding: 60px 0 80px;
+    position: relative;
+    overflow: hidden;
+  }
+  .header::after {
+    content: "";
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    right: 0;
+    height: 48px;
+    background: var(--bg);
+    clip-path: ellipse(55% 100% at 50% 100%);
+  }
+  .header-inner {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 24px;
+  }
+  .header-badge {
+    display: inline-block;
+    background: rgba(255,255,255,.2);
+    backdrop-filter: blur(8px);
+    padding: 4px 14px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 16px;
+  }
+  .header h1 {
+    font-size: 36px;
+    font-weight: 800;
+    letter-spacing: -.02em;
+    margin-bottom: 12px;
+  }
+  .header p {
+    font-size: 17px;
+    opacity: .9;
+    max-width: 600px;
+  }
+
+  /* ===== Layout ===== */
+  .container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 24px 80px;
+  }
+
+  /* ===== Table of Contents ===== */
+  .toc {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 28px 32px;
+    margin: -32px 0 48px;
+    position: relative;
+    z-index: 1;
+    box-shadow: var(--shadow-lg);
+  }
+  .toc h2 {
+    font-size: 15px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    color: var(--text-muted);
+    margin-bottom: 16px;
+  }
+  .toc ol {
+    list-style: none;
+    counter-reset: toc;
+    columns: 2;
+    column-gap: 32px;
+  }
+  .toc li {
+    counter-increment: toc;
+    margin-bottom: 8px;
+    break-inside: avoid;
+  }
+  .toc li::before {
+    content: counter(toc, decimal-leading-zero);
+    color: var(--primary);
+    font-weight: 700;
+    font-size: 13px;
+    margin-right: 8px;
+  }
+  .toc a {
+    color: var(--text);
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 15px;
+    transition: color .15s;
+  }
+  .toc a:hover { color: var(--primary); }
+
+  /* ===== Sections ===== */
+  section {
+    margin-bottom: 56px;
+  }
+  section > h2 {
+    font-size: 26px;
+    font-weight: 800;
+    letter-spacing: -.01em;
+    margin-bottom: 8px;
+    padding-bottom: 12px;
+    border-bottom: 2px solid var(--primary-light);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  section > h2 .icon {
+    font-size: 28px;
+  }
+  section > h3 {
+    font-size: 19px;
+    font-weight: 700;
+    margin: 32px 0 12px;
+    color: var(--text);
+  }
+  section p, section li {
+    color: var(--text);
+    font-size: 15px;
+  }
+  section p {
+    margin-bottom: 14px;
+  }
+  section ul, section ol {
+    margin: 0 0 16px 20px;
+  }
+  section li {
+    margin-bottom: 6px;
+  }
+
+  /* ===== Cards ===== */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px 28px;
+    margin: 20px 0;
+    box-shadow: var(--shadow);
+  }
+  .card h4 {
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 12px;
+  }
+
+  /* ===== Feature Grid ===== */
+  .feature-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 16px;
+    margin: 20px 0;
+  }
+  .feature-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px;
+    box-shadow: var(--shadow);
+    transition: transform .15s, box-shadow .15s;
+  }
+  .feature-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+  }
+  .feature-card .icon {
+    font-size: 32px;
+    margin-bottom: 12px;
+    display: block;
+  }
+  .feature-card h4 {
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+  .feature-card p {
+    color: var(--text-muted);
+    font-size: 14px;
+    margin-bottom: 0;
+  }
+
+  /* ===== Code blocks ===== */
+  pre {
+    background: var(--code-bg);
+    color: var(--code-text);
+    border-radius: 10px;
+    padding: 20px 24px;
+    overflow-x: auto;
+    font-family: "SF Mono", "Fira Code", "Cascadia Code", Consolas, monospace;
+    font-size: 13.5px;
+    line-height: 1.7;
+    margin: 16px 0;
+    box-shadow: var(--shadow);
+    position: relative;
+  }
+  pre .label {
+    position: absolute;
+    top: 10px;
+    right: 14px;
+    font-size: 11px;
+    color: #94a3b8;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+  }
+  code {
+    font-family: "SF Mono", "Fira Code", "Cascadia Code", Consolas, monospace;
+    font-size: 13.5px;
+  }
+  p code, li code, td code {
+    background: #f1f0ff;
+    color: var(--primary-dark);
+    padding: 2px 7px;
+    border-radius: 5px;
+    font-size: 13px;
+  }
+
+  /* syntax highlight classes */
+  .hl-key { color: #7dd3fc; }
+  .hl-str { color: #86efac; }
+  .hl-bool { color: #fbbf24; }
+  .hl-cmt { color: #64748b; font-style: italic; }
+  .hl-cmd { color: #c4b5fd; }
+  .hl-var { color: #fca5a5; }
+  .hl-flag { color: #fde68a; }
+
+  /* ===== Tables ===== */
+  .table-wrap {
+    overflow-x: auto;
+    margin: 16px 0;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow);
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+  }
+  thead {
+    background: #f8f7ff;
+  }
+  th {
+    text-align: left;
+    padding: 12px 16px;
+    font-weight: 700;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+    color: var(--primary-dark);
+    border-bottom: 2px solid var(--primary-light);
+    white-space: nowrap;
+  }
+  td {
+    padding: 11px 16px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+  }
+  tbody tr:last-child td { border-bottom: none; }
+  tbody tr:hover { background: #fafafe; }
+
+  /* ===== Severity badges ===== */
+  .badge {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 1.6;
+    white-space: nowrap;
+  }
+  .badge-critical { background: #fef2f2; color: #dc2626; }
+  .badge-high     { background: #fff7ed; color: #ea580c; }
+  .badge-medium   { background: #fefce8; color: #ca8a04; }
+  .badge-low      { background: #eff6ff; color: #2563eb; }
+  .badge-green    { background: #f0fdf4; color: #16a34a; }
+
+  /* ===== Flow diagram ===== */
+  .flow {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 32px;
+    margin: 20px 0;
+    box-shadow: var(--shadow);
+  }
+  .flow-step {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    margin-bottom: 4px;
+    position: relative;
+  }
+  .flow-step:not(:last-child)::after {
+    content: "";
+    position: absolute;
+    left: 19px;
+    top: 40px;
+    bottom: -4px;
+    width: 2px;
+    background: var(--primary-light);
+  }
+  .flow-num {
+    width: 40px;
+    height: 40px;
+    background: var(--primary);
+    color: #fff;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-size: 15px;
+    flex-shrink: 0;
+    position: relative;
+    z-index: 1;
+  }
+  .flow-content {
+    padding: 8px 0 24px;
+  }
+  .flow-content strong {
+    display: block;
+    font-size: 15px;
+    margin-bottom: 2px;
+  }
+  .flow-content span {
+    font-size: 14px;
+    color: var(--text-muted);
+  }
+
+  /* ===== Alert boxes ===== */
+  .alert {
+    border-radius: 10px;
+    padding: 16px 20px;
+    margin: 16px 0;
+    font-size: 14px;
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+  }
+  .alert-icon { font-size: 20px; flex-shrink: 0; margin-top: 1px; }
+  .alert-info {
+    background: #eff6ff;
+    border: 1px solid #bfdbfe;
+    color: #1e40af;
+  }
+  .alert-warn {
+    background: #fffbeb;
+    border: 1px solid #fde68a;
+    color: #92400e;
+  }
+  .alert-tip {
+    background: #f0fdf4;
+    border: 1px solid #bbf7d0;
+    color: #166534;
+  }
+
+  /* ===== Structure tree ===== */
+  .tree {
+    font-family: "SF Mono", "Fira Code", Consolas, monospace;
+    font-size: 13px;
+    line-height: 1.9;
+    background: var(--code-bg);
+    color: var(--code-text);
+    padding: 20px 24px;
+    border-radius: 10px;
+    margin: 16px 0;
+    overflow-x: auto;
+  }
+  .tree .dir  { color: #7dd3fc; font-weight: 600; }
+  .tree .file { color: #e2e8f0; }
+  .tree .desc { color: #64748b; }
+
+  /* ===== Footer ===== */
+  .footer {
+    text-align: center;
+    padding: 32px 0;
+    color: var(--text-muted);
+    font-size: 13px;
+    border-top: 1px solid var(--border);
+    margin-top: 40px;
+  }
+
+  /* ===== Responsive ===== */
+  @media (max-width: 640px) {
+    .header { padding: 40px 0 60px; }
+    .header h1 { font-size: 26px; }
+    .toc ol { columns: 1; }
+    .feature-grid { grid-template-columns: 1fr; }
+    pre { font-size: 12.5px; padding: 16px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ==================== HEADER ==================== -->
+<header class="header">
+  <div class="header-inner">
+    <span class="header-badge">v0.1.0</span>
+    <h1>AI PR Reviewer</h1>
+    <p>Claude API を使った自動コードレビューエージェント。PR の変更を分析し、Issue 作成と修正 PR を自動生成します。</p>
+  </div>
+</header>
+
+<div class="container">
+
+<!-- ==================== TOC ==================== -->
+<nav class="toc">
+  <h2>目次</h2>
+  <ol>
+    <li><a href="#features">機能一覧</a></li>
+    <li><a href="#quickstart">クイックスタート</a></li>
+    <li><a href="#setup-actions">GitHub Actions での設定</a></li>
+    <li><a href="#setup-local">ローカルでの実行</a></li>
+    <li><a href="#config">設定のカスタマイズ</a></li>
+    <li><a href="#envvars">環境変数リファレンス</a></li>
+    <li><a href="#flow">処理フロー</a></li>
+    <li><a href="#review-detail">レビュー詳細</a></li>
+    <li><a href="#safety">安全機能</a></li>
+    <li><a href="#structure">プロジェクト構成</a></li>
+  </ol>
+</nav>
+
+<!-- ==================== 1. FEATURES ==================== -->
+<section id="features">
+  <h2><span class="icon">&#x1f4cb;</span> 機能一覧</h2>
+
+  <div class="feature-grid">
+    <div class="feature-card">
+      <span class="icon">&#x1f9e0;</span>
+      <h4>AI コードレビュー</h4>
+      <p>PR の変更差分を Claude API に送信し、セキュリティ・パフォーマンス・正確性など多角的に問題を検出します。</p>
+    </div>
+    <div class="feature-card">
+      <span class="icon">&#x1f4dd;</span>
+      <h4>Issue 自動作成</h4>
+      <p>検出した問題ごとに GitHub Issue を自動生成。重大度・カテゴリ・修正案を含む詳細なレポートを作成します。</p>
+    </div>
+    <div class="feature-card">
+      <span class="icon">&#x1f527;</span>
+      <h4>修正 PR 自動生成</h4>
+      <p>修正案がある問題に対し、Claude で完全な修正コードを生成。Contents API 経由で修正 PR を作成します。</p>
+    </div>
+    <div class="feature-card">
+      <span class="icon">&#x2705;</span>
+      <h4>CI チェック確認</h4>
+      <p>修正 PR に対する CI テスト結果をバックオフ付きでポーリングし、修正が正しいか自動検証します。</p>
+    </div>
+    <div class="feature-card">
+      <span class="icon">&#x1f4ac;</span>
+      <h4>PR サマリーコメント</h4>
+      <p>レビュー結果を PR にコメント投稿。findings テーブル・Issue リンク・修正 PR リンクを集約表示します。</p>
+    </div>
+    <div class="feature-card">
+      <span class="icon">&#x1f6e1;&#xfe0f;</span>
+      <h4>無限ループ防止</h4>
+      <p>Bot actor チェック・ブランチ名チェック・ラベルチェックの 3 重ガードで自己レビューループを防止します。</p>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== 2. QUICKSTART ==================== -->
+<section id="quickstart">
+  <h2><span class="icon">&#x1f680;</span> クイックスタート</h2>
+
+  <p>最短で動かすための手順です。</p>
+
+  <h3>前提条件</h3>
+  <ul>
+    <li>GitHub リポジトリの管理権限（Secrets 設定に必要）</li>
+    <li>Anthropic API キー（<a href="https://console.anthropic.com/" target="_blank">console.anthropic.com</a> で取得）</li>
+  </ul>
+
+  <h3>手順</h3>
+
+  <div class="alert alert-info">
+    <span class="alert-icon">&#x1f4a1;</span>
+    <div><strong>GITHUB_TOKEN</strong> は GitHub Actions で自動的に提供されるため、個別取得は不要です。</div>
+  </div>
+
+  <p><strong>Step 1:</strong> リポジトリの Settings &rarr; Secrets and variables &rarr; Actions に <code>ANTHROPIC_API_KEY</code> を追加</p>
+
+  <p><strong>Step 2:</strong> 以下のワークフローファイルを作成</p>
+
+<pre><span class="label">yaml</span>
+<span class="hl-cmt"># .github/workflows/ai-review.yml</span>
+<span class="hl-key">name:</span> <span class="hl-str">AI PR Review</span>
+
+<span class="hl-key">on:</span>
+  <span class="hl-key">pull_request:</span>
+    <span class="hl-key">types:</span> <span class="hl-str">[opened, synchronize]</span>
+
+<span class="hl-key">permissions:</span>
+  <span class="hl-key">contents:</span> <span class="hl-str">write</span>
+  <span class="hl-key">issues:</span> <span class="hl-str">write</span>
+  <span class="hl-key">pull-requests:</span> <span class="hl-str">write</span>
+
+<span class="hl-key">jobs:</span>
+  <span class="hl-key">review:</span>
+    <span class="hl-key">runs-on:</span> <span class="hl-str">ubuntu-latest</span>
+    <span class="hl-key">steps:</span>
+      - <span class="hl-key">name:</span> <span class="hl-str">AI PR Review</span>
+        <span class="hl-key">uses:</span> <span class="hl-str">your-org/ai-pr-reviewer@main</span>
+        <span class="hl-key">with:</span>
+          <span class="hl-key">github-token:</span> <span class="hl-var">${{ secrets.GITHUB_TOKEN }}</span>
+          <span class="hl-key">anthropic-api-key:</span> <span class="hl-var">${{ secrets.ANTHROPIC_API_KEY }}</span></pre>
+
+  <p><strong>Step 3:</strong> PR を作成すると自動的にレビューが実行されます。</p>
+</section>
+
+<!-- ==================== 3. GITHUB ACTIONS ==================== -->
+<section id="setup-actions">
+  <h2><span class="icon">&#x2699;&#xfe0f;</span> GitHub Actions での設定</h2>
+
+  <h3>Action の入力パラメータ</h3>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>パラメータ</th><th>必須</th><th>デフォルト</th><th>説明</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>github-token</code></td>
+          <td><span class="badge badge-critical">必須</span></td>
+          <td>-</td>
+          <td>GitHub トークン（repo 権限が必要）</td>
+        </tr>
+        <tr>
+          <td><code>anthropic-api-key</code></td>
+          <td><span class="badge badge-critical">必須</span></td>
+          <td>-</td>
+          <td>Anthropic API キー</td>
+        </tr>
+        <tr>
+          <td><code>repository</code></td>
+          <td><span class="badge badge-green">任意</span></td>
+          <td>現在のリポジトリ</td>
+          <td><code>owner/repo</code> 形式</td>
+        </tr>
+        <tr>
+          <td><code>pr-number</code></td>
+          <td><span class="badge badge-green">任意</span></td>
+          <td>トリガーの PR 番号</td>
+          <td>レビュー対象の PR 番号</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>必要な permissions</h3>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>Permission</th><th>用途</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>contents: write</code></td><td>修正ブランチの作成・ファイルコミット</td></tr>
+        <tr><td><code>issues: write</code></td><td>Issue の自動作成</td></tr>
+        <tr><td><code>pull-requests: write</code></td><td>修正 PR の作成・コメント投稿</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>推奨：同時実行の制御</h3>
+  <p>同一 PR で複数のレビューが同時実行されるのを防ぐため、<code>concurrency</code> の設定を推奨します。</p>
+
+<pre><span class="label">yaml</span>
+<span class="hl-key">concurrency:</span>
+  <span class="hl-key">group:</span> <span class="hl-str">ai-review-${{ github.event.pull_request.number }}</span>
+  <span class="hl-key">cancel-in-progress:</span> <span class="hl-bool">true</span></pre>
+</section>
+
+<!-- ==================== 4. LOCAL ==================== -->
+<section id="setup-local">
+  <h2><span class="icon">&#x1f4bb;</span> ローカルでの実行</h2>
+
+  <h3>インストール</h3>
+<pre><span class="label">bash</span>
+<span class="hl-cmt"># リポジトリをクローン</span>
+<span class="hl-cmd">git clone</span> https://github.com/your-org/ai-pr-reviewer.git
+<span class="hl-cmd">cd</span> ai-pr-reviewer
+
+<span class="hl-cmt"># 開発モードでインストール</span>
+<span class="hl-cmd">pip install</span> <span class="hl-flag">-e</span> <span class="hl-str">".[dev]"</span></pre>
+
+  <h3>実行方法</h3>
+
+  <p><strong>方法 1: CLI コマンド</strong></p>
+<pre><span class="label">bash</span>
+<span class="hl-cmt"># 環境変数を設定</span>
+<span class="hl-cmd">export</span> <span class="hl-var">GITHUB_TOKEN</span>=<span class="hl-str">"ghp_xxxxxxxxxxxx"</span>
+<span class="hl-cmd">export</span> <span class="hl-var">ANTHROPIC_API_KEY</span>=<span class="hl-str">"sk-ant-xxxxxxxxxxxx"</span>
+
+<span class="hl-cmt"># 実行</span>
+<span class="hl-cmd">python</span> <span class="hl-flag">-m</span> pr_reviewer <span class="hl-flag">--repo</span> owner/repo <span class="hl-flag">--pr</span> 123</pre>
+
+  <p><strong>方法 2: スクリプト経由</strong></p>
+<pre><span class="label">bash</span>
+<span class="hl-cmd">./scripts/run_local.sh</span> owner/repo 123</pre>
+
+  <p><strong>方法 3: 引数でトークンを渡す</strong></p>
+<pre><span class="label">bash</span>
+<span class="hl-cmd">python</span> <span class="hl-flag">-m</span> pr_reviewer \
+  <span class="hl-flag">--repo</span> owner/repo \
+  <span class="hl-flag">--pr</span> 123 \
+  <span class="hl-flag">--github-token</span> <span class="hl-str">"ghp_xxxx"</span> \
+  <span class="hl-flag">--anthropic-key</span> <span class="hl-str">"sk-ant-xxxx"</span></pre>
+
+  <h3>CLI オプション</h3>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>オプション</th><th>必須</th><th>説明</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>--repo</code></td><td><span class="badge badge-critical">必須</span></td><td><code>owner/repo</code> 形式のリポジトリ名</td></tr>
+        <tr><td><code>--pr</code></td><td><span class="badge badge-critical">必須</span></td><td>PR 番号</td></tr>
+        <tr><td><code>--github-token</code></td><td><span class="badge badge-green">任意</span></td><td>GitHub トークン（未指定時は <code>GITHUB_TOKEN</code> 環境変数）</td></tr>
+        <tr><td><code>--anthropic-key</code></td><td><span class="badge badge-green">任意</span></td><td>Anthropic API キー（未指定時は <code>ANTHROPIC_API_KEY</code> 環境変数）</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>テストの実行</h3>
+<pre><span class="label">bash</span>
+<span class="hl-cmt"># ユニットテスト</span>
+<span class="hl-cmd">pytest</span> tests/unit/ <span class="hl-flag">-v</span>
+
+<span class="hl-cmt"># lint チェック</span>
+<span class="hl-cmd">ruff check</span> src/ tests/</pre>
+</section>
+
+<!-- ==================== 5. CONFIG ==================== -->
+<section id="config">
+  <h2><span class="icon">&#x1f4c4;</span> 設定のカスタマイズ</h2>
+
+  <p>設定は 3 つのレイヤーで管理され、後のレイヤーが前のレイヤーを上書きします。</p>
+
+  <div class="card">
+    <h4>設定の優先順位（低 &rarr; 高）</h4>
+    <ol>
+      <li><strong>デフォルト設定</strong> &mdash; <code>config/default_rules.yml</code> に定義</li>
+      <li><strong>リポジトリ設定</strong> &mdash; リポジトリルートの <code>.ai-reviewer.yml</code></li>
+      <li><strong>環境変数</strong> &mdash; <code>AI_REVIEWER_*</code> プレフィックス</li>
+    </ol>
+  </div>
+
+  <h3>リポジトリ設定ファイル（<code>.ai-reviewer.yml</code>）</h3>
+  <p>リポジトリのルートに配置すると、デフォルト設定を上書きできます。</p>
+
+<pre><span class="label">.ai-reviewer.yml</span>
+<span class="hl-cmt"># レビュー設定</span>
+<span class="hl-key">review:</span>
+  <span class="hl-key">min_severity:</span> <span class="hl-str">medium</span>          <span class="hl-cmt"># low / medium / high / critical</span>
+  <span class="hl-key">max_findings_per_file:</span> <span class="hl-str">5</span>
+  <span class="hl-key">max_total_findings:</span> <span class="hl-str">30</span>
+
+<span class="hl-cmt"># 除外パターン（デフォルトに追加）</span>
+<span class="hl-key">exclude_patterns:</span>
+  - <span class="hl-str">"*.lock"</span>
+  - <span class="hl-str">"docs/**"</span>
+  - <span class="hl-str">"migrations/**"</span>
+  - <span class="hl-str">"*.generated.*"</span>
+
+<span class="hl-cmt"># チェックするカテゴリ</span>
+<span class="hl-key">categories:</span>
+  - <span class="hl-str">security</span>
+  - <span class="hl-str">correctness</span>
+  - <span class="hl-str">performance</span>
+
+<span class="hl-cmt"># 修正PR設定</span>
+<span class="hl-key">fix:</span>
+  <span class="hl-key">enabled:</span> <span class="hl-bool">true</span>
+  <span class="hl-key">branch_prefix:</span> <span class="hl-str">"ai-fix/"</span>
+  <span class="hl-key">max_files_per_pr:</span> <span class="hl-str">10</span>
+
+<span class="hl-cmt"># CIチェック待機</span>
+<span class="hl-key">test_check:</span>
+  <span class="hl-key">enabled:</span> <span class="hl-bool">true</span>
+  <span class="hl-key">timeout:</span> <span class="hl-str">300</span>               <span class="hl-cmt"># 秒</span>
+  <span class="hl-key">poll_interval:</span> <span class="hl-str">30</span>          <span class="hl-cmt"># 秒</span>
+
+<span class="hl-cmt"># Claude モデル設定</span>
+<span class="hl-key">claude:</span>
+  <span class="hl-key">model:</span> <span class="hl-str">"claude-sonnet-4-20250514"</span>
+  <span class="hl-key">max_tokens:</span> <span class="hl-str">4096</span></pre>
+
+  <div class="alert alert-tip">
+    <span class="alert-icon">&#x2714;&#xfe0f;</span>
+    <div>全ての項目は省略可能です。指定した項目のみデフォルト値を上書きします。</div>
+  </div>
+</section>
+
+<!-- ==================== 6. ENV VARS ==================== -->
+<section id="envvars">
+  <h2><span class="icon">&#x1f310;</span> 環境変数リファレンス</h2>
+
+  <p>環境変数は全ての設定の中で最優先されます。</p>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>環境変数</th><th>型</th><th>説明</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>GITHUB_TOKEN</code></td>
+          <td>string</td>
+          <td>GitHub API トークン（必須）</td>
+        </tr>
+        <tr>
+          <td><code>ANTHROPIC_API_KEY</code></td>
+          <td>string</td>
+          <td>Anthropic API キー（必須）</td>
+        </tr>
+        <tr>
+          <td><code>LOG_LEVEL</code></td>
+          <td>string</td>
+          <td>ログレベル（<code>DEBUG</code> / <code>INFO</code> / <code>WARNING</code> / <code>ERROR</code>）</td>
+        </tr>
+        <tr>
+          <td><code>AI_REVIEWER_MIN_SEVERITY</code></td>
+          <td>string</td>
+          <td>最低報告レベル（<code>low</code> / <code>medium</code> / <code>high</code> / <code>critical</code>）</td>
+        </tr>
+        <tr>
+          <td><code>AI_REVIEWER_MAX_FINDINGS_PER_FILE</code></td>
+          <td>int</td>
+          <td>1ファイルあたりの最大 findings 数</td>
+        </tr>
+        <tr>
+          <td><code>AI_REVIEWER_MAX_TOTAL_FINDINGS</code></td>
+          <td>int</td>
+          <td>全体の最大 findings 数</td>
+        </tr>
+        <tr>
+          <td><code>AI_REVIEWER_FIX_ENABLED</code></td>
+          <td>bool</td>
+          <td>修正 PR 生成の有効/無効（<code>true</code> / <code>false</code>）</td>
+        </tr>
+        <tr>
+          <td><code>AI_REVIEWER_FIX_BRANCH_PREFIX</code></td>
+          <td>string</td>
+          <td>修正ブランチのプレフィックス</td>
+        </tr>
+        <tr>
+          <td><code>AI_REVIEWER_CLAUDE_MODEL</code></td>
+          <td>string</td>
+          <td>使用する Claude モデル名</td>
+        </tr>
+        <tr>
+          <td><code>AI_REVIEWER_CLAUDE_MAX_TOKENS</code></td>
+          <td>int</td>
+          <td>Claude の最大出力トークン数</td>
+        </tr>
+        <tr>
+          <td><code>AI_REVIEWER_TEST_CHECK_ENABLED</code></td>
+          <td>bool</td>
+          <td>CI チェック待機の有効/無効</td>
+        </tr>
+        <tr>
+          <td><code>AI_REVIEWER_TEST_CHECK_TIMEOUT</code></td>
+          <td>int</td>
+          <td>CI チェックのタイムアウト（秒）</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ==================== 7. FLOW ==================== -->
+<section id="flow">
+  <h2><span class="icon">&#x1f504;</span> 処理フロー</h2>
+
+  <p>PR が作成または更新されたときに実行される一連の処理です。</p>
+
+  <div class="flow">
+    <div class="flow-step">
+      <div class="flow-num">1</div>
+      <div class="flow-content">
+        <strong>トリガー検知</strong>
+        <span>PR のオープンまたは更新を GitHub Actions が検知</span>
+      </div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-num">2</div>
+      <div class="flow-content">
+        <strong>ループ防止チェック</strong>
+        <span>Bot actor / <code>ai-fix/</code> ブランチ / <code>ai-fix</code> ラベルの 3 重チェック</span>
+      </div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-num">3</div>
+      <div class="flow-content">
+        <strong>設定読み込み</strong>
+        <span>デフォルト &rarr; <code>.ai-reviewer.yml</code> &rarr; 環境変数の 3 層マージ</span>
+      </div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-num">4</div>
+      <div class="flow-content">
+        <strong>ファイルフィルタリング</strong>
+        <span>除外パターンの適用、削除済み/バイナリファイルの除外</span>
+      </div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-num">5</div>
+      <div class="flow-content">
+        <strong>AI レビュー実行</strong>
+        <span>各ファイルを Claude API に送信し、問題点を構造化 JSON で取得</span>
+      </div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-num">6</div>
+      <div class="flow-content">
+        <strong>Issue 作成</strong>
+        <span>検出した問題ごとに GitHub Issue を自動生成（ラベル付き）</span>
+      </div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-num">7</div>
+      <div class="flow-content">
+        <strong>修正 PR 生成</strong>
+        <span>修正案を Claude で生成し、<code>ai-fix/PR番号</code> ブランチにコミット &rarr; PR 作成</span>
+      </div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-num">8</div>
+      <div class="flow-content">
+        <strong>CI チェック待機</strong>
+        <span>修正 PR の Check Runs をポーリング（バックオフ付き）</span>
+      </div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-num">9</div>
+      <div class="flow-content">
+        <strong>サマリーコメント投稿</strong>
+        <span>findings テーブル + Issue リンク + 修正 PR リンクを元 PR にコメント</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="alert alert-info">
+    <span class="alert-icon">&#x1f4a1;</span>
+    <div>問題が検出されなかった場合は、Step 5 の後に「No Issues Found」の承認コメントが投稿され、Step 6〜8 はスキップされます。</div>
+  </div>
+</section>
+
+<!-- ==================== 8. REVIEW DETAIL ==================== -->
+<section id="review-detail">
+  <h2><span class="icon">&#x1f50d;</span> レビュー詳細</h2>
+
+  <h3>重大度レベル</h3>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>レベル</th><th>意味</th><th>対応</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="badge badge-critical">critical</span></td>
+          <td>重大なセキュリティ脆弱性やデータ損失のリスク</td>
+          <td>マージ前に必ず修正</td>
+        </tr>
+        <tr>
+          <td><span class="badge badge-high">high</span></td>
+          <td>重要なバグや性能問題</td>
+          <td>修正を強く推奨</td>
+        </tr>
+        <tr>
+          <td><span class="badge badge-medium">medium</span></td>
+          <td>改善が望ましい問題</td>
+          <td>修正を検討</td>
+        </tr>
+        <tr>
+          <td><span class="badge badge-low">low</span></td>
+          <td>軽微なコード品質の問題</td>
+          <td>余裕があれば対応</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>レビューカテゴリ</h3>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>カテゴリ</th><th>検出対象の例</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>security</code></td><td>SQL インジェクション、XSS、ハードコードされた秘密情報、認証の欠陥</td></tr>
+        <tr><td><code>performance</code></td><td>N+1 クエリ、不必要なループ、メモリリーク</td></tr>
+        <tr><td><code>correctness</code></td><td>未処理の例外、Off-by-one エラー、競合状態</td></tr>
+        <tr><td><code>maintainability</code></td><td>複雑すぎるロジック、重複コード、不適切な命名</td></tr>
+        <tr><td><code>style</code></td><td>コーディング規約違反、一貫性のないフォーマット</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>レビュー結果の出力例（PR コメント）</h3>
+  <div class="card">
+    <h4>&#x1f4cb; AI Review Summary</h4>
+    <p>Found <strong>3</strong> issue(s) (1 critical).</p>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Severity</th><th>Category</th><th>File</th><th>Title</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="badge badge-critical">critical</span></td>
+            <td>security</td>
+            <td><code>src/db.py</code></td>
+            <td>SQL injection vulnerability</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-high">high</span></td>
+            <td>correctness</td>
+            <td><code>src/auth.py</code></td>
+            <td>Missing error handling in verify_token</td>
+          </tr>
+          <tr>
+            <td><span class="badge badge-medium">medium</span></td>
+            <td>security</td>
+            <td><code>src/db.py</code></td>
+            <td>Hardcoded file path</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p style="margin-top:12px"><strong>Created Issues:</strong> #101, #102, #103</p>
+    <p><strong>Fix PR:</strong> #104</p>
+  </div>
+</section>
+
+<!-- ==================== 9. SAFETY ==================== -->
+<section id="safety">
+  <h2><span class="icon">&#x1f6e1;&#xfe0f;</span> 安全機能（無限ループ防止）</h2>
+
+  <p>修正 PR が作成されると、その PR に対してもレビューがトリガーされる可能性があります。これによる無限ループを 3 重のガードで防止しています。</p>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>#</th><th>ガード</th><th>チェック内容</th><th>該当時の動作</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>1</strong></td>
+          <td>Bot Actor チェック</td>
+          <td>PR 作者名に <code>[bot]</code>、<code>github-actions</code>、<code>dependabot</code> が含まれるか</td>
+          <td>レビューをスキップ</td>
+        </tr>
+        <tr>
+          <td><strong>2</strong></td>
+          <td>ブランチ名チェック</td>
+          <td>head ブランチが <code>ai-fix/</code> で始まるか</td>
+          <td>レビューをスキップ</td>
+        </tr>
+        <tr>
+          <td><strong>3</strong></td>
+          <td>ラベルチェック</td>
+          <td>PR に <code>ai-fix</code> ラベルが付与されているか</td>
+          <td>レビューをスキップ</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="alert alert-warn">
+    <span class="alert-icon">&#x26a0;&#xfe0f;</span>
+    <div>GitHub Actions のワークフローにも <code>if</code> 条件でのガードを追加することを推奨します（クイックスタートのサンプル参照）。</div>
+  </div>
+</section>
+
+<!-- ==================== 10. STRUCTURE ==================== -->
+<section id="structure">
+  <h2><span class="icon">&#x1f4c2;</span> プロジェクト構成</h2>
+
+  <div class="tree"><span class="dir">ai-pr-reviewer/</span>
+├── <span class="file">action.yml</span>                    <span class="desc"># GitHub Action エントリポイント</span>
+├── <span class="file">pyproject.toml</span>                <span class="desc"># 依存関係・ビルド設定</span>
+├── <span class="dir">.github/workflows/</span>
+│   ├── <span class="file">ci.yml</span>                    <span class="desc"># CI パイプライン (test + lint)</span>
+│   └── <span class="file">example-usage.yml</span>         <span class="desc"># 利用者向けワークフローサンプル</span>
+├── <span class="dir">src/pr_reviewer/</span>
+│   ├── <span class="file">__init__.py</span>               <span class="desc"># パッケージ初期化</span>
+│   ├── <span class="file">__main__.py</span>               <span class="desc"># CLI エントリポイント</span>
+│   ├── <span class="file">main.py</span>                   <span class="desc"># オーケストレーター</span>
+│   ├── <span class="file">config.py</span>                 <span class="desc"># 3層設定マージ</span>
+│   ├── <span class="file">models.py</span>                 <span class="desc"># Pydantic データモデル</span>
+│   ├── <span class="file">github_client.py</span>          <span class="desc"># GitHub API ラッパー</span>
+│   ├── <span class="file">diff_parser.py</span>            <span class="desc"># diff パース・フィルタ</span>
+│   ├── <span class="file">reviewer.py</span>               <span class="desc"># Claude API レビューロジック</span>
+│   ├── <span class="file">issue_creator.py</span>          <span class="desc"># Issue 自動作成</span>
+│   ├── <span class="file">fix_generator.py</span>          <span class="desc"># 修正コード生成・PR作成</span>
+│   ├── <span class="file">test_runner.py</span>            <span class="desc"># CI チェック結果確認</span>
+│   ├── <span class="file">commenter.py</span>              <span class="desc"># PR コメント投稿</span>
+│   └── <span class="dir">prompts/</span>                  <span class="desc"># プロンプトテンプレート</span>
+│       ├── <span class="file">review_system.txt</span>     <span class="desc"># レビュー用システムプロンプト</span>
+│       ├── <span class="file">review_file.txt</span>       <span class="desc"># ファイルレビュー用テンプレート</span>
+│       └── <span class="file">fix_generation.txt</span>    <span class="desc"># 修正生成用テンプレート</span>
+├── <span class="dir">config/</span>
+│   └── <span class="file">default_rules.yml</span>         <span class="desc"># デフォルトレビュールール</span>
+├── <span class="dir">tests/</span>
+│   ├── <span class="file">conftest.py</span>               <span class="desc"># 共有テストフィクスチャ</span>
+│   ├── <span class="dir">unit/</span>                     <span class="desc"># ユニットテスト (65 tests)</span>
+│   └── <span class="dir">fixtures/</span>                 <span class="desc"># テスト用サンプルデータ</span>
+└── <span class="dir">scripts/</span>
+    └── <span class="file">run_local.sh</span>              <span class="desc"># ローカル実行スクリプト</span></div>
+</section>
+
+</div><!-- /container -->
+
+<footer class="footer">
+  AI PR Reviewer v0.1.0 &middot; Powered by Claude API
+</footer>
+
+</body>
+</html>

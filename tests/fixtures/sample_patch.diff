@@ -1,0 +1,16 @@
+@@ -0,0 +1,15 @@
++import os
++import sqlite3
++
++def get_user(user_id):
++    conn = sqlite3.connect('app.db')
++    cursor = conn.cursor()
++    # SQL injection vulnerability
++    cursor.execute(f"SELECT * FROM users WHERE id = {user_id}")
++    return cursor.fetchone()
++
++def save_config(data):
++    # Writes to a hardcoded path
++    with open('/tmp/config.json', 'w') as f:
++        f.write(data)
++    return True

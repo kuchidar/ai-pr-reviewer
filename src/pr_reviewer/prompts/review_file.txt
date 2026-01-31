@@ -1,0 +1,24 @@
+Review the following file change from a pull request.
+
+## PR Context
+- **Title:** {pr_title}
+- **Description:** {pr_body}
+
+## File: {filename}
+
+### Diff (unified format)
+```
+{patch}
+```
+
+### Full File Content (for context)
+```
+{file_content}
+```
+
+## Review Instructions
+- Categories to check: {categories}
+- Maximum findings for this file: {max_findings}
+- Focus on the changes shown in the diff
+- Consider the full file content for context only
+- Return your findings as JSON following the system prompt schema

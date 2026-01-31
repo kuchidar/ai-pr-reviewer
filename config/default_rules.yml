@@ -1,0 +1,57 @@
+# Default review rules for AI PR Reviewer
+
+review:
+  # Severity levels to report: critical, high, medium, low
+  min_severity: low
+  # Maximum number of findings per file
+  max_findings_per_file: 10
+  # Maximum number of total findings
+  max_total_findings: 50
+
+exclude_patterns:
+  - "*.lock"
+  - "*.min.js"
+  - "*.min.css"
+  - "package-lock.json"
+  - "yarn.lock"
+  - "poetry.lock"
+  - "*.generated.*"
+  - "*.pb.go"
+  - "__pycache__/**"
+  - "node_modules/**"
+  - "vendor/**"
+  - "dist/**"
+  - "build/**"
+  - ".git/**"
+
+categories:
+  - security
+  - performance
+  - maintainability
+  - correctness
+  - style
+
+labels:
+  review: "ai-review"
+  automated: "automated"
+  fix: "ai-fix"
+
+fix:
+  # Whether to auto-generate fix PRs
+  enabled: true
+  # Branch prefix for fix branches
+  branch_prefix: "ai-fix/"
+  # Maximum files to fix in a single PR
+  max_files_per_pr: 10
+
+test_check:
+  # Whether to wait for CI checks on fix PRs
+  enabled: true
+  # Maximum wait time in seconds
+  timeout: 300
+  # Poll interval in seconds
+  poll_interval: 30
+
+claude:
+  model: "claude-sonnet-4-20250514"
+  max_tokens: 4096
